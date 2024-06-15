@@ -69,37 +69,44 @@ public class BookServiсeImpl implements BookService {
 
 	@Transactional (readOnly = true)
 	@Override
-	public BookDto[] findBooksByAuthor(String authorName) {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterable<BookDto> findBooksByAuthor(String authorName) {
+		return bookRepository.findByAuthorsName(authorName)
+				.map(b-> modelMapper.map(b, BookDto.class))
+				.toList();
 	}
 	
 	@Transactional (readOnly = true)
 	@Override
-	public BookDto[] findBooksByPublisher(String publisherName) {
-		// TODO Auto-generated method stub
-		return null;
+	public 	Iterable<BookDto> findBooksByPublisher(String publisherName) {
+		return bookRepository.findByPublisherPublisherName(publisherName)
+				.map(p-> modelMapper.map(p, BookDto.class))
+				.toList();
 	}
 	
 	@Transactional (readOnly = true)
 	@Override
-	public AuthorDto[] findBookAuthors(String isbn) {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterable<AuthorDto> findBookAuthors(String isbn) {
+		Book book = bookRepository.findById(isbn).orElseThrow(EntityNotFoundExeption::new);
+		return book.getAuthors().stream()
+				.map(a->modelMapper.map(a, AuthorDto.class))
+				.toList();
 	}
 	
 	@Transactional (readOnly = true)
 	@Override
-	public Iterable<Publisher> findPublishersByAuthor(String authorName) {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterable<String> findPublishersByAuthor(String authorName) {
+		return publisherRepository.findPublishersByAuthor(authorName);
 	}
 	
 	@Transactional
 	@Override
 	public AuthorDto removeAuthor(String authorName) {
-		// TODO Auto-generated method stub
-		return null;
+		Author author = authorRepository.findById(authorName).orElseThrow(EntityNotFoundExeption::new);
+//		bookRepository.findByAuthorsName(authorName)
+//				.forEach(b-> bookRepository.delete(b));
+		bookRepository.deleteByAuthorsName(authorName);
+		authorRepository.deleteById(authorName);
+		return modelMapper.map(author, AuthorDto.class);
 	}
 
 }
